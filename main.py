@@ -21,9 +21,12 @@ grammar = '''
 ?array: "[" [value ("," value)*] "]"
 
 ?printval: "print" value
-petri: "petrin" "->" "place=" array "," "time=" value "," star arrow narrow arrow star
+petri: "petrin" "->" "place=" array "," "time=" value "," star [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] narrow [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] star
 
 star: ["*" ("*")*]
+
+arrow_left: "<-"
+arrow_right: "->"
 
 arrow: ["<-" ("<-")*] | ["->" ("->")*]
 
@@ -61,9 +64,9 @@ class LanguageTransformer(Transformer):
     firings = elements[1]
     ps = [Place(m) for m in a]
     ts = dict(
-        t1=Transition(
-            [Out(ps[1])],
-            [In(ps[2])]),
+         t1=Transition(
+            [Out(ps[2])],
+            [In(ps[3])]),
         t2=Transition(
             [Out(ps[1])],
             [In(ps[2]), In(ps[0])]),)
@@ -71,22 +74,6 @@ class LanguageTransformer(Transformer):
     print(firing_sequence)
     petri_net = PetriNet(ts)
     petri_net.run(firing_sequence, ps)
-    # def inn(self, *elements):
-    #     return [elements]
-        # alist = []
-        # #for i in elements:
-        # alist.append(elements)
-        # ps = [Place(m) for m in alist]
-        # for i in ps:
-        #     return i
-    # def outt(self, *elements):
-    #     return [elements]
-        # alist = []
-        # #for i in elements:
-        # alist.append(elements)
-        # ps = [Place(m) for m in alist]
-        # for i in ps:
-        #     return i
 
 
 l = Lark(grammar, parser='lalr', transformer=LanguageTransformer())
