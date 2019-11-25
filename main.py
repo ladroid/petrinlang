@@ -21,7 +21,7 @@ grammar = '''
 ?array: "[" [value ("," value)*] "]"
 
 ?printval: "print" value
-petri: "petrin" "->" "place=" array "," "firings=" value "," star [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] narrow [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] star
+petri: "petrin" "->" "place=" array "," "time=" value "," star [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] narrow [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] star
 
 star: ["*" ("*")*]
 
