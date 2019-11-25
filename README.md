@@ -11,5 +11,5 @@ New programming language for making petri networks
 
 Example of code
 ```
-petrin-> place=[2,3,2,4], time=10, * -> <- | -> *
+petrin-> place=[1,0], time=10, * -> <- | -> *
 ```

@@ -21,7 +21,7 @@ grammar = '''
 ?array: "[" [value ("," value)*] "]"
 
 ?printval: "print" value
-petri: "petrin" "->" "place=" array "," "time=" value "," star [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] narrow [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] star
+petri: "petrin" "->" "place=" array "," "firings=" value "," star [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] narrow [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] star
 
 star: ["*" ("*")*]
 
@@ -65,16 +65,17 @@ class LanguageTransformer(Transformer):
     ps = [Place(m) for m in a]
     ts = dict(
          t1=Transition(
-            [Out(ps[2])],
-            [In(ps[3])]),
-        t2=Transition(
-            [Out(ps[1])],
-            [In(ps[2]), In(ps[0])]),)
+             [Out(ps[0])], 
+             [In(ps[0]), In(ps[1])]
+        )
+        # t2=Transition(
+        #     [Out(ps[1])],
+        #     [In(ps[2]), In(ps[0])])
+        ,)
     firing_sequence = [choice(list(ts.keys())) for _ in range(firings)] # stochastic execution
     print(firing_sequence)
     petri_net = PetriNet(ts)
     petri_net.run(firing_sequence, ps)
-
 
 l = Lark(grammar, parser='lalr', transformer=LanguageTransformer())
 file = open('example.pn', 'r')
