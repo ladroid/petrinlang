@@ -1,1 +1,1 @@
-petrin-> place=[1, 0], firings=10, * -> <- | -> *
+petrin-> place=[1, 0], time=10, * 1 -> <- 1 | 1 -> *

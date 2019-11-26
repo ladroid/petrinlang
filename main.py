@@ -1,10 +1,12 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from lark import Lark, Transformer, Visitor, Tree, v_args, UnexpectedInput
-from place import Place
-from net import PetriNet
-from arc import Arc
-from out import Out
-from inn import In
-from transition import Transition
+from src.place import Place
+from src.net import PetriNet
+from src.arc import Arc
+from src.out import Out
+from src.inn import In
+from src.transition import Transition
 from random import choice
 import functools
 grammar = '''
@@ -21,12 +23,12 @@ grammar = '''
 ?array: "[" [value ("," value)*] "]"
 
 ?printval: "print" value
-petri: "petrin" "->" "place=" array "," "time=" value "," star [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] narrow [arrow_left (arrow_left)*  arrow_right | arrow_right (arrow_right)* arrow_left | arrow_left (arrow_left)* | arrow_right (arrow_right)*] star
+petri: "petrin" "->" "place=" array "," "time=" value "," star [ arrow_left value (arrow_left)*  value arrow_right | value arrow_right (arrow_right)* arrow_left value | arrow_left value (arrow_left)* | value arrow_right (arrow_right)*] narrow [arrow_left value (arrow_left)* value arrow_right | value arrow_right (arrow_right)* arrow_left value | arrow_left value (arrow_left)* | value arrow_right (arrow_right)*] star
 
-star: ["*" ("*")*]
+?star: ["*" ("*")*]
 
-arrow_left: "<-"
-arrow_right: "->"
+?arrow_left: "<-"
+?arrow_right: "->"
 
 arrow: ["<-" ("<-")*] | ["->" ("->")*]
 
@@ -39,8 +41,10 @@ string : ESCAPED_STRING
 %import common.ESCAPED_STRING
 %import common.CNAME -> NAME
 %import common.WS_INLINE
+%import common.WS
 %ignore " "
 %ignore WS_INLINE
+%ignore WS
 '''
 
 @v_args(inline=True)
@@ -62,6 +66,9 @@ class LanguageTransformer(Transformer):
   def petri(self, *elements):
     a = elements[0]
     firings = elements[1]
+    coeff = [num for num in elements[2:] if isinstance(num, int)]
+    print('all coeff', coeff)
+
     ps = [Place(m) for m in a]
     ts = dict(
          t1=Transition(
@@ -76,6 +83,43 @@ class LanguageTransformer(Transformer):
     print(firing_sequence)
     petri_net = PetriNet(ts)
     petri_net.run(firing_sequence, ps)
+
+'''
+examp1
+1 -> <- | -> *
+
+
+examp2
+    -> | -> *
+100  
+    -> | -> *
+
+examp1
+# li = [1,0]
+# firings = 10
+
+# ps = [Place(m) for m in li]
+# ts = dict(
+#     t1=Transition(
+#         [Out(ps[0])], 
+#         [In(ps[0]), In(ps[1])]
+#         ),
+#     # t2=Transition(
+#     #     [Out(ps[1]), Out(ps[2])], 
+#     #     [In(ps[3]), In(ps[0])]
+#     #     ),
+#     )
+
+examp2
+# li = [100, 0, 0]
+# firings = 10
+# ps = [Place(m) for m in li]
+# ts = dict(
+#     t1=Transition([Out(ps[0])], [In(ps[1])]),
+#     t2=Transition([Out(ps[0])], [In(ps[2])])
+# )
+
+'''
 
 l = Lark(grammar, parser='lalr', transformer=LanguageTransformer())
 file = open('example.pn', 'r')
